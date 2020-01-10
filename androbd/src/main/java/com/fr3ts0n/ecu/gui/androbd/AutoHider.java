@@ -19,7 +19,6 @@
 
 package com.fr3ts0n.ecu.gui.androbd;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
@@ -33,33 +32,38 @@ import java.util.TimerTask;
 /**
  * Automatically hide components after timeout and show again on touch action
  */
-class AutoHider
+public class AutoHider
 	extends TimerTask
 	implements OnTouchListener
 {
+	/** parent activity */
+	private Activity mActivity;
 	/** activities message handler */
-	private final Handler mHandler;
+	private Handler mHandler;
 	/** timestamp when component was hidden */
 	private long componentHideTime;
 	/** message ID to be sent for hiding component */
-	private final int mMessageId;
+	private int mMessageId;
 	/** current visibility state of component */
 	private boolean visible = true;
 	/** delay time[ms] before component gets hidden */
-	private final long TB_HIDE_DELAY;
+	long TB_HIDE_DELAY = 15000;
 
 	/**
 	 * Constructor
 	 * @param activity parent activity
 	 * @param handler activity's message handler
+	 * @param hideMessageId message ID of hide/sho message
 	 * @param hideDelayTime delay time[ms] before component gets hidden
 	 */
-	AutoHider(Activity activity,
-	          Handler handler,
-	          long hideDelayTime)
+	public AutoHider(Activity activity,
+	                 Handler handler,
+	                 int hideMessageId,
+	                 long hideDelayTime )
 	{
 		TB_HIDE_DELAY = hideDelayTime;
-		mMessageId = MainActivity.MESSAGE_TOOLBAR_VISIBLE;
+		mMessageId = hideMessageId;
+		mActivity = activity;
 		mHandler  = handler;
 		activity.getWindow().getDecorView().setOnTouchListener(this);
 	}
@@ -72,7 +76,6 @@ class AutoHider
 		return super.cancel();
 	}
 
-	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
 	{
@@ -118,7 +121,7 @@ class AutoHider
 	/**
 	 * Show tool bar again
 	 */
-	void showComponent()
+	public void showComponent()
 	{
 		// set next hiding time
 		componentHideTime = System.currentTimeMillis() + TB_HIDE_DELAY;

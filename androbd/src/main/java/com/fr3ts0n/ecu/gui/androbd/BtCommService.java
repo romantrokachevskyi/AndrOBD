@@ -57,7 +57,7 @@ public class BtCommService extends CommService
 	 * @param context The UI Activity Context
 	 * @param handler A Handler to send messages back to the UI Activity
 	 */
-	BtCommService(Context context, Handler handler)
+    public BtCommService(Context context, Handler handler)
 	{
 		super(context, handler);
 

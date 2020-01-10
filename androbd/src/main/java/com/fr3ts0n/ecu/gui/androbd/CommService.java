@@ -43,7 +43,7 @@ public abstract class CommService
 	}
 
 	/** media type selection */
-	static MEDIUM medium = MEDIUM.BLUETOOTH;
+	public static MEDIUM medium = MEDIUM.BLUETOOTH;
 
 	/** Constants that indicate the current connection state */
 	public enum STATE

@@ -19,7 +19,6 @@
 package com.fr3ts0n.ecu.gui.androbd;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -52,15 +51,14 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.fr3ts0n.androbd.plugin.Plugin;
 import com.fr3ts0n.androbd.plugin.mgr.PluginManager;
 import com.fr3ts0n.ecu.EcuCodeItem;
 import com.fr3ts0n.ecu.EcuDataItem;
 import com.fr3ts0n.ecu.EcuDataItems;
 import com.fr3ts0n.ecu.EcuDataPv;
+
 import com.fr3ts0n.ecu.prot.obd.ElmProt;
 import com.fr3ts0n.ecu.prot.obd.ObdProt;
-import com.fr3ts0n.pvs.ProcessVar;
 import com.fr3ts0n.pvs.PvChangeEvent;
 import com.fr3ts0n.pvs.PvChangeListener;
 import com.fr3ts0n.pvs.PvList;
@@ -73,7 +71,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -86,15 +83,16 @@ import java.util.logging.SimpleFormatter;
 
 import static com.fr3ts0n.ecu.gui.androbd.SettingsActivity.ELM_TIMING_SELECT;
 
+
 /**
  * Main Activity for AndrOBD app
  */
 public class MainActivity extends PluginManager
-	implements PvChangeListener,
-		           AdapterView.OnItemLongClickListener,
-		           PropertyChangeListener,
-		           SharedPreferences.OnSharedPreferenceChangeListener,
-		           AbsListView.MultiChoiceModeListener
+		implements PvChangeListener,
+		AdapterView.OnItemLongClickListener,
+		PropertyChangeListener,
+		SharedPreferences.OnSharedPreferenceChangeListener,
+		AbsListView.MultiChoiceModeListener
 {
 	/**
 	 * operating modes
@@ -102,8 +100,8 @@ public class MainActivity extends PluginManager
 	public enum MODE
 	{
 		OFFLINE,//< OFFLINE mode
-		ONLINE,    //< ONLINE mode
-		DEMO,    //< DEMO mode
+		ONLINE,	//< ONLINE mode
+		DEMO,	//< DEMO mode
 		FILE,   //< FILE mode
 	}
 
@@ -116,7 +114,7 @@ public class MainActivity extends PluginManager
 		FILTERED,   //< data list (filtered)
 		DASHBOARD,  //< dashboard
 		HEADUP,     //< Head up display
-		CHART,        //< Chart display
+		CHART,		//< Chart display
 	}
 
 	/**
@@ -130,38 +128,38 @@ public class MainActivity extends PluginManager
 		LAST_ITEMS,
 		LAST_VIEW_MODE,
 	}
-	
+
 	/**
 	 * Key names for preferences
 	 */
 	public static final String DEVICE_NAME = "device_name";
-	private static final String DEVICE_ADDRESS = "device_address";
-	private static final String DEVICE_PORT = "device_port";
+	public static final String DEVICE_ADDRESS = "device_address";
+	public static final String DEVICE_PORT = "device_port";
 	public static final String TOAST = "toast";
-	private static final String MEASURE_SYSTEM = "measure_system";
-	private static final String NIGHT_MODE = "night_mode";
-	private static final String ELM_ADAPTIVE_TIMING = ELM_TIMING_SELECT;
-	private static final String ELM_RESET_ON_NRC = "elm_reset_on_nrc";
-	private static final String PREF_USE_LAST = "USE_LAST_SETTINGS";
+	public static final String MEASURE_SYSTEM = "measure_system";
+	public static final String NIGHT_MODE = "night_mode";
+	public static final String ELM_ADAPTIVE_TIMING = ELM_TIMING_SELECT;
+	public static final String ELM_RESET_ON_NRC = "elm_reset_on_nrc";
+	public static final String PREF_USE_LAST = "USE_LAST_SETTINGS";
 	public static final String PREF_AUTOHIDE = "autohide_toolbar";
-	private static final String PREF_OVERLAY = "toolbar_overlay";
+	public static final String PREF_OVERLAY = "toolbar_overlay";
 	public static final String PREF_AUTOHIDE_DELAY = "autohide_delay";
-	private static final String PREF_DATA_DISABLE_MAX = "data_disable_max";
+	public static final String PREF_DATA_DISABLE_MAX = "data_disable_max";
 
 	/**
 	 * Message types sent from the BluetoothChatService Handler
 	 */
 	public static final int MESSAGE_STATE_CHANGE = 1;
 	public static final int MESSAGE_FILE_READ = 2;
-	private static final int MESSAGE_FILE_WRITTEN = 3;
+	public static final int MESSAGE_FILE_WRITTEN = 3;
 	public static final int MESSAGE_DEVICE_NAME = 4;
 	public static final int MESSAGE_TOAST = 5;
-	private static final int MESSAGE_DATA_ITEMS_CHANGED = 6;
+	public static final int MESSAGE_DATA_ITEMS_CHANGED = 6;
 	public static final int MESSAGE_UPDATE_VIEW = 7;
-	private static final int MESSAGE_OBD_STATE_CHANGED = 8;
-	private static final int MESSAGE_OBD_NUMCODES = 9;
-	private static final int MESSAGE_OBD_ECUS = 10;
-	private static final int MESSAGE_OBD_NRC = 11;
+	public static final int MESSAGE_OBD_STATE_CHANGED = 8;
+	public static final int MESSAGE_OBD_NUMCODES = 9;
+	public static final int MESSAGE_OBD_ECUS = 10;
+	public static final int MESSAGE_OBD_NRC = 11;
 	public static final int MESSAGE_TOOLBAR_VISIBLE = 12;
 	private static final String TAG = "AndrOBD";
 	/**
@@ -182,27 +180,24 @@ public class MainActivity extends PluginManager
 	/**
 	 * time between display updates to represent data changes
 	 */
-	private static final int DISPLAY_UPDATE_TIME = 250;
-	private static final String LOG_MASTER = "log_master";
-	private static final String KEEP_SCREEN_ON = "keep_screen_on";
-	private static final String ELM_CUSTOM_INIT_CMDS = "elm_custom_init_cmds";
+	private static final int DISPLAY_UPDATE_TIME = 200;
+	public static final String LOG_MASTER = "log_master";
+	public static final String KEEP_SCREEN_ON = "keep_screen_on";
+	public static final String ELM_CUSTOM_INIT_CMDS = "elm_custom_init_cmds";
 
-	/** Logging */
-	private static final Logger rootLogger = Logger.getLogger("");
 	private static final Logger log = Logger.getLogger(TAG);
-	/**
-	 * dialog builder
-	 */
+
+	/** dialog builder */
 	private static AlertDialog.Builder dlgBuilder;
 
 	/**
 	 * app preferences ...
 	 */
-	static SharedPreferences prefs;
+	protected static SharedPreferences prefs;
 	/**
 	 * Member object for the BT comm services
 	 */
-	private CommService mCommService = null;
+	private static CommService mCommService = null;
 	/**
 	 * Local Bluetooth adapter
 	 */
@@ -216,22 +211,16 @@ public class MainActivity extends PluginManager
 	 */
 	private static Menu menu;
 	/**
-	 * Container for Plugin-provided data
-	 */
-	public static PvList mPluginPvs = new PvList();
-
-	/**
 	 * Data list adapters
 	 */
 	private static ObdItemAdapter mPidAdapter;
 	private static VidItemAdapter mVidAdapter;
 	private static DfcItemAdapter mDfcAdapter;
-	private static PluginDataAdapter mPluginDataAdapter;
 	private static ObdItemAdapter currDataAdapter;
 	/**
 	 * Timer for display updates
 	 */
-	private static final Timer updateTimer = new Timer();
+	private static Timer updateTimer = new Timer();
 	/**
 	 * initial state of bluetooth adapter
 	 */
@@ -244,31 +233,19 @@ public class MainActivity extends PluginManager
 	 * toast for showing exit message
 	 */
 	private static Toast exitToast = null;
-	/**
-	 * file helper
-	 */
-	private FileHelper fileHelper;
-	/**
-	 * the local list view
-	 */
-	private View mListView;
-	/**
-	 * current data view mode
-	 */
+	/** file helper */
+	private static FileHelper fileHelper;
+	/** the local list view */
+	protected View mListView;
+	/** current data view mode */
 	private DATA_VIEW_MODE dataViewMode = DATA_VIEW_MODE.LIST;
-	/**
-	 * AutoHider for the toolbar
-	 */
+	/** AutoHider for the toolbar */
 	private AutoHider toolbarAutoHider;
-	/**
-	 * log file handler
-	 */
+	/** log file handler */
 	private FileHandler logFileHandler;
 
-	/**
-	 * handler for freeze frame selection
-	 */
-	private final AdapterView.OnItemSelectedListener ff_selected = new AdapterView.OnItemSelectedListener()
+	/** handler for freeze frame selection */
+	AdapterView.OnItemSelectedListener ff_selected = new AdapterView.OnItemSelectedListener()
 	{
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
@@ -287,30 +264,27 @@ public class MainActivity extends PluginManager
 	 * activation of night mode
 	 */
 	private boolean nightMode = false;
-	/**
-	 * current OBD service
-	 */
+	/** current OBD service */
 	private int obdService = ElmProt.OBD_SVC_NONE;
 	/**
 	 * current operating mode
 	 */
 	private MODE mode = MODE.OFFLINE;
 
-	/**
-	 * empty string set as default parameter
-	 */
-	private static final Set<String> emptyStringSet = new HashSet<>();
+	/** empty string set as default parameter*/
+	static final Set<String> emptyStringSet = new HashSet<String>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		// instantiate superclass
 		super.onCreate(savedInstanceState);
-
+		requestWindowFeature(Window.FEATURE_PROGRESS);
+		setContentView(R.layout.content_main);
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-			WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		requestWindowFeature(Window.FEATURE_PROGRESS);
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 
 		// get additional permissions
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -318,8 +292,8 @@ public class MainActivity extends PluginManager
 			// Storage Permissions
 			final int REQUEST_EXTERNAL_STORAGE = 1;
 			final String[] PERMISSIONS_STORAGE = {
-				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
+					Manifest.permission.READ_EXTERNAL_STORAGE,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE
 			};
 			requestPermissions(PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
 			// Workaround for FileUriExposedException in Android >= M
@@ -335,15 +309,14 @@ public class MainActivity extends PluginManager
 		prefs.registerOnSharedPreferenceChangeListener(this);
 
 		// Overlay feature has to be set before window content is set
-		if (prefs.getBoolean(PREF_AUTOHIDE, false)
-		    && prefs.getBoolean(PREF_OVERLAY, false))
-		{ getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY); }
+		if( prefs.getBoolean(PREF_AUTOHIDE, false)
+				&& prefs.getBoolean(PREF_OVERLAY, false))
+			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		// Set up all data adapters
 		mPidAdapter = new ObdItemAdapter(this, R.layout.obd_item, ObdProt.PidPvs);
 		mVidAdapter = new VidItemAdapter(this, R.layout.obd_item, ObdProt.VidPvs);
 		mDfcAdapter = new DfcItemAdapter(this, R.layout.obd_item, ObdProt.tCodes);
-		mPluginDataAdapter = new PluginDataAdapter(this, R.layout.obd_item, mPluginPvs);
 		currDataAdapter = mPidAdapter;
 
 		// get list view
@@ -352,16 +325,49 @@ public class MainActivity extends PluginManager
 		// update all settings from preferences
 		onSharedPreferenceChanged(prefs, null);
 
-        // set up logging system
-		setupLoggers();
+		// set up logging ...
+		String logFileName = FileHelper.getPath(this).concat(File.separator).concat("log");
+		try
+		{
+			// ensure log directory is available
+			new File(logFileName).mkdirs();
+			// Create new log file handler (max. 250 MB, 5 files rotated, non appending)
+			logFileHandler = new FileHandler( logFileName.concat("/AndrOBD.log.%g.txt"),
+					250*1024*1024,
+					5,
+					false);
+			// Set log message formatter
+			logFileHandler.setFormatter(new SimpleFormatter() {
+				String format = "%1$tF\t%1$tT.%1$tL\t%4$s\t%3$s\t%5$s%n";
 
+				@Override
+				public synchronized String format(LogRecord lr) {
+					return String.format(format,
+							new Date(lr.getMillis()),
+							lr.getSourceClassName(),
+							lr.getLoggerName(),
+							lr.getLevel().getLocalizedName(),
+							lr.getMessage()
+					);
+				}
+			});
+			// add file logging ...
+			Logger.getLogger("").addHandler(logFileHandler);
+			// set
+			setLogLevels();
+		}
+		catch(IOException e)
+		{
+			// try to log error (at least with system logging)
+			log.log(Level.SEVERE, logFileName, e);
+		}
 		// Log program startup
 		log.info(String.format("%s %s starting",
-			getString(R.string.app_name),
-			getString(R.string.app_version)));
+				getString(R.string.app_name),
+				getString(R.string.app_version)));
 
 		// create file helper instance
-		fileHelper = new FileHelper(this);
+		fileHelper = new FileHelper(this, CommService.elm);
 		// set listeners for data structure changes
 		setDataListeners();
 		// automate elm status display
@@ -374,7 +380,7 @@ public class MainActivity extends PluginManager
 			actionBar.setDisplayShowTitleEnabled(true);
 		}
 		// start automatic toolbar hider
-		setAutoHider(prefs.getBoolean(PREF_AUTOHIDE, false));
+		setAutoHider(prefs.getBoolean(PREF_AUTOHIDE,false));
 
 		// set content view
 		setContentView(R.layout.startup_layout);
@@ -409,8 +415,6 @@ public class MainActivity extends PluginManager
 				setMode(MODE.ONLINE);
 				break;
 		}
-		// set up data update timer
-		updateTimer.schedule(updateTask, 0, DISPLAY_UPDATE_TIME);
 	}
 
 	/**
@@ -446,8 +450,7 @@ public class MainActivity extends PluginManager
 			CommService.elm.goToSleep();
 			// wait until message is out ...
 			Thread.sleep(100, 0);
-		}
-		catch (InterruptedException e)
+		} catch (InterruptedException e)
 		{
 			// do nothing
 			log.log(Level.FINER, e.getLocalizedMessage());
@@ -462,7 +465,7 @@ public class MainActivity extends PluginManager
 		setMode(MODE.OFFLINE);
 
 		// stop communication service
-		if (mCommService != null) { mCommService.stop(); }
+		if (mCommService != null) mCommService.stop();
 
 		// if bluetooth adapter was switched OFF before ...
 		if (mBluetoothAdapter != null && !initialBtStateEnabled)
@@ -472,12 +475,12 @@ public class MainActivity extends PluginManager
 		}
 
 		log.info(String.format("%s %s finished",
-			getString(R.string.app_name),
-			getString(R.string.app_version)));
+				getString(R.string.app_name),
+				getString(R.string.app_version)));
 
 		/* remove log file handler */
-		logFileHandler.close();
 		Logger.getLogger("").removeHandler(logFileHandler);
+		logFileHandler.close();
 
 		super.onDestroy();
 	}
@@ -501,41 +504,37 @@ public class MainActivity extends PluginManager
 	@Override
 	public void onBackPressed()
 	{
-		if (getListAdapter() == pluginHandler)
+		if(getListAdapter() == pluginHandler)
 		{
 			setObdService(obdService, null);
 		}
 		else
+		if (CommService.elm.getService() != ObdProt.OBD_SVC_NONE)
 		{
-			if (CommService.elm.getService() != ObdProt.OBD_SVC_NONE)
+			if(dataViewMode != DATA_VIEW_MODE.LIST)
 			{
-				if (dataViewMode != DATA_VIEW_MODE.LIST)
-				{
-					setDataViewMode(DATA_VIEW_MODE.LIST);
-					checkToRestoreLastDataSelection();
-				}
-				else
-				{
-					setObdService(ObdProt.OBD_SVC_NONE, null);
-				}
+				setDataViewMode(DATA_VIEW_MODE.LIST, false);
+				checkToRestoreLastDataSelection();
 			}
 			else
 			{
-				if (lastBackPressTime < System.currentTimeMillis() - EXIT_TIMEOUT)
+				setObdService(ObdProt.OBD_SVC_NONE, null);
+			}
+		}
+		else
+		{
+			if (lastBackPressTime < System.currentTimeMillis() - EXIT_TIMEOUT)
+			{
+				exitToast = Toast.makeText(this, R.string.back_again_to_exit, Toast.LENGTH_SHORT);
+				exitToast.show();
+				lastBackPressTime = System.currentTimeMillis();
+			} else
+			{
+				if (exitToast != null)
 				{
-					exitToast =
-						Toast.makeText(this, R.string.back_again_to_exit, Toast.LENGTH_SHORT);
-					exitToast.show();
-					lastBackPressTime = System.currentTimeMillis();
+					exitToast.cancel();
 				}
-				else
-				{
-					if (exitToast != null)
-					{
-						exitToast.cancel();
-					}
-					super.onBackPressed();
-				}
+				super.onBackPressed();
 			}
 		}
 	}
@@ -561,6 +560,9 @@ public class MainActivity extends PluginManager
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		// Handle presses on the action bar items
+		updateTimer.purge();
+
 		switch (item.getItemId())
 		{
 			case R.id.day_night_mode:
@@ -579,7 +581,7 @@ public class MainActivity extends PluginManager
 
 			case R.id.disconnect:
 				// stop communication service
-				if (mCommService != null) { mCommService.stop(); }
+				if (mCommService != null) mCommService.stop();
 				setMode(MODE.OFFLINE);
 				return true;
 
@@ -662,23 +664,28 @@ public class MainActivity extends PluginManager
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item)
 	{
-		switch (item.getItemId())
+		switch(item.getItemId())
 		{
 			case R.id.chart_selected:
-				setDataViewMode(DATA_VIEW_MODE.CHART);
+				setDataViewMode(DATA_VIEW_MODE.CHART, false);
 				return true;
 
 			case R.id.hud_selected:
-				setDataViewMode(DATA_VIEW_MODE.HEADUP);
+				setDataViewMode(DATA_VIEW_MODE.HEADUP, false);
 				return true;
 
 			case R.id.dashboard_selected:
-				setDataViewMode(DATA_VIEW_MODE.DASHBOARD);
+				setDataViewMode(DATA_VIEW_MODE.DASHBOARD, false);
 				return true;
 
 			case R.id.filter_selected:
-				setDataViewMode(DATA_VIEW_MODE.FILTERED);
+				setDataViewMode(DATA_VIEW_MODE.FILTERED, false);
 				return true;
+
+//			case R.id.unfilter_selected:
+//				setDataViewMode(DATA_VIEW_MODE.LIST, false);
+//				return true;
+
 		}
 		return false;
 	}
@@ -708,13 +715,12 @@ public class MainActivity extends PluginManager
 				if (resultCode == Activity.RESULT_OK)
 				{
 					// Get the device MAC address
-					String address = Objects.requireNonNull(data.getExtras()).getString(
-						BtDeviceListActivity.EXTRA_DEVICE_ADDRESS);
+					String address = data.getExtras().getString(
+							BtDeviceListActivity.EXTRA_DEVICE_ADDRESS);
 					// save reported address as last setting
 					prefs.edit().putString(PRESELECT.LAST_DEV_ADDRESS.toString(), address).apply();
 					connectBtDevice(address, secureConnection);
-				}
-				else
+				} else
 				{
 					setMode(MODE.OFFLINE);
 				}
@@ -727,8 +733,7 @@ public class MainActivity extends PluginManager
 				{
 					mCommService = new UsbCommService(this, mHandler);
 					mCommService.connect(UsbDeviceListActivity.selectedPort, true);
-				}
-				else
+				} else
 				{
 					setMode(MODE.OFFLINE);
 				}
@@ -741,8 +746,7 @@ public class MainActivity extends PluginManager
 				{
 					// Start online mode
 					setMode(MODE.ONLINE);
-				}
-				else
+				} else
 				{
 					// Start demo service Thread
 					setMode(MODE.DEMO);
@@ -757,7 +761,7 @@ public class MainActivity extends PluginManager
 					Uri uri = data.getData();
 					log.info("Load content: " + uri);
 					// load data ...
-					fileHelper.loadDataThreaded(uri, mHandler);
+					fileHelper.loadDataThreaded(uri, mHandler, MESSAGE_FILE_READ);
 					// don't allow saving it again
 					setMenuItemEnable(R.id.save, false);
 					setMenuItemEnable(R.id.obd_services, true);
@@ -783,83 +787,77 @@ public class MainActivity extends PluginManager
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key)
 	{
 		// keep main display on?
-		if (key == null || KEEP_SCREEN_ON.equals(key))
+		if (key==null || KEEP_SCREEN_ON.equals(key))
 		{
 			getWindow().addFlags(prefs.getBoolean(KEEP_SCREEN_ON, false)
-			                     ? WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-			                     : 0);
+					? WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+					: 0);
 		}
 
 		// night mode
-		if (key == null || NIGHT_MODE.equals(key))
-		{ setNightMode(prefs.getBoolean(NIGHT_MODE, false)); }
+		if(key==null || NIGHT_MODE.equals(key))
+			setNightMode(prefs.getBoolean(NIGHT_MODE, false));
 
 		// set default comm medium
-		if (key == null || SettingsActivity.KEY_COMM_MEDIUM.equals(key))
-		{
+		if(key==null || SettingsActivity.KEY_COMM_MEDIUM.equals(key))
 			CommService.medium =
-				CommService.MEDIUM.values()[
-					getPrefsInt(SettingsActivity.KEY_COMM_MEDIUM, 0)];
-		}
+					CommService.MEDIUM.values()[
+							getPrefsInt(SettingsActivity.KEY_COMM_MEDIUM, 0)];
 
 		// enable/disable ELM adaptive timing
-		if (key == null || ELM_ADAPTIVE_TIMING.equals(key))
-		{
+		if(key==null || ELM_ADAPTIVE_TIMING.equals(key))
 			CommService.elm.mAdaptiveTiming.setMode(
-				ElmProt.AdaptTimingMode.valueOf(
-					prefs.getString(ELM_ADAPTIVE_TIMING,
-						ElmProt.AdaptTimingMode.OFF.toString())));
-		}
+					ElmProt.AdaptTimingMode.valueOf(
+							prefs.getString(ELM_ADAPTIVE_TIMING,
+									ElmProt.AdaptTimingMode.OFF.toString())));
 
 		// set protocol flag to initiate immediate reset on NRC reception
-		if (key == null || ELM_RESET_ON_NRC.equals(key))
-		{ CommService.elm.setResetOnNrc(prefs.getBoolean(ELM_RESET_ON_NRC, false)); }
+		if(key==null || ELM_RESET_ON_NRC.equals(key))
+			CommService.elm.setResetOnNrc(prefs.getBoolean(ELM_RESET_ON_NRC, false));
 
 		// set custom ELM init commands
-		if (key == null || ELM_CUSTOM_INIT_CMDS.equals(key))
+		if(key==null || ELM_CUSTOM_INIT_CMDS.equals(key))
 		{
 			String value = prefs.getString(ELM_CUSTOM_INIT_CMDS, null);
-			if (value != null && value.length() > 0)
-			{ CommService.elm.setCustomInitCommands(value.split("\n")); }
+			if(value != null && value.length() > 0)
+				CommService.elm.setCustomInitCommands(value.split("\n"));
 		}
 
 		// ELM timeout
-		if (key == null || SettingsActivity.ELM_MIN_TIMEOUT.equals(key))
-		{
+		if(key==null || SettingsActivity.ELM_MIN_TIMEOUT.equals(key))
 			CommService.elm.mAdaptiveTiming.setElmTimeoutMin(
-				getPrefsInt(SettingsActivity.ELM_MIN_TIMEOUT,
-					CommService.elm.mAdaptiveTiming.getElmTimeoutMin()));
-		}
+					getPrefsInt(SettingsActivity.ELM_MIN_TIMEOUT,
+							CommService.elm.mAdaptiveTiming.getElmTimeoutMin()));
 
 		// ... measurement system
-		if (key == null || MEASURE_SYSTEM.equals(key))
-		{ setConversionSystem(getPrefsInt(MEASURE_SYSTEM, EcuDataItem.SYSTEM_METRIC)); }
+		if(key==null || MEASURE_SYSTEM.equals(key))
+			setConversionSystem(getPrefsInt(MEASURE_SYSTEM, EcuDataItem.SYSTEM_METRIC));
 
 		// ... preferred protocol
-		if (key == null || SettingsActivity.KEY_PROT_SELECT.equals(key))
-		{ ElmProt.setPreferredProtocol(getPrefsInt(SettingsActivity.KEY_PROT_SELECT, 0)); }
+		if(key==null || SettingsActivity.KEY_PROT_SELECT.equals(key))
+			ElmProt.setPreferredProtocol(getPrefsInt(SettingsActivity.KEY_PROT_SELECT, 0));
 
 		// log levels
-		if (key == null || LOG_MASTER.equals(key))
-		{ setLogLevels(); }
+		if(key==null || LOG_MASTER.equals(key))
+			setLogLevels();
 
 		// update from protocol extensions
-		if (key == null || key.startsWith("ext_file-"))
-		{ loadPreferredExtensions(); }
+		if(key==null || key.startsWith("ext_file-"))
+			loadPreferredExtensions();
 
 		// set disabled ELM commands
-		if (key == null || SettingsActivity.ELM_CMD_DISABLE.equals(key))
+		if(key==null || SettingsActivity.ELM_CMD_DISABLE.equals(key))
 		{
 			ElmProt.disableCommands(prefs.getStringSet(SettingsActivity.ELM_CMD_DISABLE, null));
 		}
 
 		// AutoHide ToolBar
-		if (key == null || PREF_AUTOHIDE.equals(key) || PREF_AUTOHIDE_DELAY.equals(key))
-		{ setAutoHider(prefs.getBoolean(PREF_AUTOHIDE, false)); }
+		if(key==null || PREF_AUTOHIDE.equals(key) || PREF_AUTOHIDE_DELAY.equals(key))
+			setAutoHider(prefs.getBoolean(PREF_AUTOHIDE,false));
 
 		// Max. data disabling debounce counter
-		if (key == null || PREF_DATA_DISABLE_MAX.equals(key))
-		{ EcuDataItem.MAX_ERROR_COUNT = getPrefsInt(PREF_DATA_DISABLE_MAX, 3); }
+		if(key==null || PREF_DATA_DISABLE_MAX.equals(key))
+			EcuDataItem.MAX_ERROR_COUNT = getPrefsInt(PREF_DATA_DISABLE_MAX, 3);
 	}
 
 	/**
@@ -898,13 +896,12 @@ public class MainActivity extends PluginManager
 					intent = new Intent(Intent.ACTION_WEB_SEARCH);
 					EcuCodeItem dfc = (EcuCodeItem) getListAdapter().getItem(position);
 					intent.putExtra(SearchManager.QUERY,
-						"OBD " + String.valueOf(dfc.get(EcuCodeItem.FID_CODE)));
+							"OBD " + String.valueOf(dfc.get(EcuCodeItem.FID_CODE)));
 					startActivity(intent);
 				}
-				catch (Exception e)
+				catch(Exception e)
 				{
-					log.log(Level.SEVERE, "WebSearch DFC", e);
-					Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+					log.log(Level.SEVERE,"WebSearch DFC", e);
 				}
 				break;
 		}
@@ -923,7 +920,7 @@ public class MainActivity extends PluginManager
 	{
 		// forward PV change to the UI Activity
 		Message msg = mHandler.obtainMessage(MainActivity.MESSAGE_DATA_ITEMS_CHANGED);
-		if (!event.isChildEvent())
+		if(!event.isChildEvent())
 		{
 			msg.obj = event;
 			mHandler.sendMessage(msg);
@@ -933,7 +930,6 @@ public class MainActivity extends PluginManager
 	/**
 	 * Handle message requests
 	 */
-	@SuppressLint("HandlerLeak")
 	private transient final Handler mHandler = new Handler()
 	{
 		@Override
@@ -981,7 +977,7 @@ public class MainActivity extends PluginManager
 						// set OBD data mode to the one selected by input file
 						setObdService(CommService.elm.getService(), getString(R.string.saved_data));
 						// Check if last data selection shall be restored
-						if (obdService == ObdProt.OBD_SVC_DATA)
+						if(obdService == ObdProt.OBD_SVC_DATA)
 						{
 							checkToRestoreLastDataSelection();
 							checkToRestoreLastViewMode();
@@ -992,14 +988,14 @@ public class MainActivity extends PluginManager
 						// save the connected device's name
 						mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
 						Toast.makeText(getApplicationContext(),
-							getString(R.string.connected_to) + mConnectedDeviceName,
-							Toast.LENGTH_SHORT).show();
+								getString(R.string.connected_to) + mConnectedDeviceName,
+								Toast.LENGTH_SHORT).show();
 						break;
 
 					case MESSAGE_TOAST:
 						Toast.makeText(getApplicationContext(),
-							msg.getData().getString(TOAST),
-							Toast.LENGTH_SHORT).show();
+								msg.getData().getString(TOAST),
+								Toast.LENGTH_SHORT).show();
 						break;
 
 					case MESSAGE_DATA_ITEMS_CHANGED:
@@ -1010,18 +1006,17 @@ public class MainActivity extends PluginManager
 								currDataAdapter.setPvList(currDataAdapter.pvs);
 								try
 								{
-									if (event.getSource() == ObdProt.PidPvs)
+									if(event.getSource() == ObdProt.PidPvs)
 									{
-										// append plugin measurements to data list
-										currDataAdapter.addAll(mPluginPvs.values());
 										// Check if last data selection shall be restored
 										checkToRestoreLastDataSelection();
 										checkToRestoreLastViewMode();
 									}
-								}
-								catch (Exception e)
+									// set up data update timer
+									updateTimer.schedule(updateTask, 0, DISPLAY_UPDATE_TIME);
+								} catch (Exception ignored)
 								{
-									log.log(Level.FINER, "Error adding PV", e);
+									log.log(Level.FINER, "Error adding PV", ignored);
 								}
 								break;
 
@@ -1038,20 +1033,18 @@ public class MainActivity extends PluginManager
 					// handle state change in OBD protocol
 					case MESSAGE_OBD_STATE_CHANGED:
 						evt = (PropertyChangeEvent) msg.obj;
-						ElmProt.STAT state = (ElmProt.STAT) evt.getNewValue();
+						ElmProt.STAT state = (ElmProt.STAT)evt.getNewValue();
 						/* Show ELM status only in ONLINE mode */
 						if (getMode() != MODE.DEMO)
 						{
-							setStatus(getResources().getStringArray(R.array.elmcomm_states)[state
-								                                                                .ordinal()]);
+							setStatus(getResources().getStringArray(R.array.elmcomm_states)[state.ordinal()]);
 						}
 						// if last selection shall be restored ...
-						if (istRestoreWanted(PRESELECT.LAST_SERVICE))
+						if(istRestoreWanted(PRESELECT.LAST_SERVICE))
 						{
-							if (state == ElmProt.STAT.ECU_DETECTED)
+							if(state == ElmProt.STAT.ECU_DETECTED)
 							{
-								setObdService(prefs.getInt(PRESELECT.LAST_SERVICE.toString(), 0),
-									null);
+								setObdService(prefs.getInt(PRESELECT.LAST_SERVICE.toString(),0), null);
 							}
 						}
 						break;
@@ -1070,56 +1063,32 @@ public class MainActivity extends PluginManager
 
 					// handle negative result code from OBD protocol
 					case MESSAGE_OBD_NRC:
+						// reset OBD mode to prevent infinite error loop
+						setObdService(ObdProt.OBD_SVC_NONE, getText(R.string.obd_error));
 						// show error dialog ...
 						evt = (PropertyChangeEvent) msg.obj;
-						ObdProt.NRC nrc = (ObdProt.NRC)evt.getOldValue();
-						String nrcMsg = (String) evt.getNewValue();
-						switch(nrc.disp)
-						{
-							case ERROR:
-								dlgBuilder
-									.setIcon(android.R.drawable.ic_dialog_alert)
-									.setTitle(R.string.obd_error)
-									.setMessage(nrcMsg)
-									.setPositiveButton(null, null)
-									.show();
-								break;
-							// Display warning (with confirmation)
-							case WARN:
-								dlgBuilder
-									.setIcon(android.R.drawable.ic_dialog_info)
-									.setTitle(R.string.obd_error)
-									.setMessage(nrcMsg)
-									.setPositiveButton(null,null)
-									.show();
-								break;
-							// Display notification (no confirmation)
-							case NOTIFY:
-								Toast.makeText( getApplicationContext(),
-									            nrcMsg,
-									            Toast.LENGTH_SHORT).show();
-								break;
-
-							case HIDE:
-							default:
-								// intentionally ignore
-						}
+						String nrcMessage = (String)evt.getNewValue();
+						dlgBuilder
+								.setIcon(android.R.drawable.ic_dialog_alert)
+								.setTitle(R.string.obd_error)
+								.setMessage(nrcMessage)
+								.setPositiveButton(null,null)
+								.show();
 						break;
 
 					// set toolbar visibility
 					case MESSAGE_TOOLBAR_VISIBLE:
-						Boolean visible = (Boolean) msg.obj;
+						Boolean visible = (Boolean)msg.obj;
 						// log action
 						log.fine(String.format("ActionBar: %s", visible ? "show" : "hide"));
 						// set action bar visibility
 						ActionBar ab = getActionBar();
-						if (ab != null)
+						if(ab != null)
 						{
-							if (visible)
+							if(visible)
 							{
 								ab.show();
-							}
-							else
+							} else
 							{
 								ab.hide();
 							}
@@ -1127,7 +1096,7 @@ public class MainActivity extends PluginManager
 						break;
 				}
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				log.log(Level.SEVERE, "Error in mHandler", ex);
 			}
@@ -1136,38 +1105,36 @@ public class MainActivity extends PluginManager
 
 	/**
 	 * Check if restore of specified preselection is wanted from settings
-	 *
 	 * @param preselect specified preselect
 	 * @return flag if preselection shall be restored
 	 */
-	private boolean istRestoreWanted(PRESELECT preselect)
+	boolean istRestoreWanted(PRESELECT preselect)
 	{
 		return prefs.getStringSet(PREF_USE_LAST, emptyStringSet).contains(preselect.toString());
 	}
 
 	/**
 	 * Check if last data selection shall be restored
-	 * <p>
+	 *
 	 * If previously selected items shall be re-selected, then re-select them
 	 */
-	private void checkToRestoreLastDataSelection()
+	public void checkToRestoreLastDataSelection()
 	{
 		// if last data items shall be restored
-		if (istRestoreWanted(PRESELECT.LAST_ITEMS))
+		if(istRestoreWanted(PRESELECT.LAST_ITEMS))
 		{
 			// get preference for last seleted items
-			int[] lastSelectedItems =
-				toIntArray(prefs.getString(PRESELECT.LAST_ITEMS.toString(), ""));
+			int[] lastSelectedItems =	toIntArray(prefs.getString(PRESELECT.LAST_ITEMS.toString(), ""));
 			// select last selected items
-			if (lastSelectedItems.length > 0)
+			if(lastSelectedItems.length > 0)
 			{
-				if (!selectDataItems(lastSelectedItems))
+				if(!selectDataItems(lastSelectedItems, true))
 				{
 					// if items could not be applied
 					// remove invalid preselection
 					prefs.edit().remove(PRESELECT.LAST_ITEMS.toString()).apply();
 					log.warning(String.format("Invalid preselection: %s",
-						Arrays.toString(lastSelectedItems)));
+							Arrays.toString(lastSelectedItems)));
 				}
 			}
 		}
@@ -1175,33 +1142,31 @@ public class MainActivity extends PluginManager
 
 	/**
 	 * Check if last view mode shall be restored
-	 * <p>
+	 *
 	 * If last view mode shall be restored by user settings,
 	 * then restore the last selected view mode
 	 */
-	private void checkToRestoreLastViewMode()
+	void checkToRestoreLastViewMode()
 	{
 		// if last view mode shall be restored
-		if (istRestoreWanted(PRESELECT.LAST_VIEW_MODE))
+		if(istRestoreWanted(PRESELECT.LAST_VIEW_MODE))
 		{
 			// set last data view mode
 			DATA_VIEW_MODE lastMode =
-				DATA_VIEW_MODE.valueOf(prefs.getString(PRESELECT.LAST_VIEW_MODE.toString(),
-					DATA_VIEW_MODE.LIST.toString()));
-			setDataViewMode(lastMode);
+					DATA_VIEW_MODE.valueOf(prefs.getString(PRESELECT.LAST_VIEW_MODE.toString(),DATA_VIEW_MODE.LIST.toString()));
+			setDataViewMode(lastMode, false);
 		}
 	}
 
 	/**
 	 * convert result of Arrays.toString(int[]) back into int[]
-	 *
 	 * @param input String of array
 	 * @return int[] of String value
 	 */
 	private int[] toIntArray(String input)
 	{
 		int[] result = {};
-		try
+		if(input.length() > 0)
 		{
 			String beforeSplit = input.replaceAll("\\[|\\]|\\s", "");
 			String[] split = beforeSplit.split("\\,");
@@ -1211,29 +1176,24 @@ public class MainActivity extends PluginManager
 				result[i] = Integer.parseInt(split[i]);
 			}
 		}
-		catch(Exception ex)
-		{
-			log.severe(ex.toString());
-		}
 		return result;
 	}
 
 	/**
 	 * Prompt for selection of a single ECU from list of available ECUs
-	 *
 	 * @param ecuAdresses List of available ECUs
 	 */
-	private void selectEcu(final Set<Integer> ecuAdresses)
+	protected void selectEcu(final Set<Integer> ecuAdresses)
 	{
 		// if more than one ECUs available ...
-		if (ecuAdresses.size() > 1)
+		if(ecuAdresses.size() > 1)
 		{
 			int preferredAddress = prefs.getInt(PRESELECT.LAST_ECU_ADDRESS.toString(), 0);
 			// check if last preferred address matches any of the reported addresses
-			if (istRestoreWanted(PRESELECT.LAST_ECU_ADDRESS)
-			    && ecuAdresses.contains(preferredAddress))
+			if(istRestoreWanted(PRESELECT.LAST_ECU_ADDRESS)
+					&& ecuAdresses.contains(preferredAddress))
 			{
-				// set address
+				// set addrerss
 				CommService.elm.setEcuAddress(preferredAddress);
 			}
 			else
@@ -1250,29 +1210,26 @@ public class MainActivity extends PluginManager
 				}
 				// show dialog ...
 				dlgBuilder
-					.setTitle(R.string.select_ecu_addr)
-					.setItems(entries, new DialogInterface.OnClickListener()
-					{
-						@Override
-						public void onClick(DialogInterface dialog, int which)
+						.setTitle(R.string.select_ecu_addr)
+						.setItems(entries, new DialogInterface.OnClickListener()
 						{
-							int address =
-								Integer.parseInt(entries[which].toString().substring(2), 16);
-							// set address
-							CommService.elm.setEcuAddress(address);
-							// set this as preference (preference change will trigger ELM command)
-							prefs.edit().putInt(PRESELECT.LAST_ECU_ADDRESS.toString(), address)
-								.apply();
-						}
-					})
-					.show();
+							@Override
+							public void onClick(DialogInterface dialog, int which)
+							{
+								int address = Integer.parseInt(entries[which].toString().substring(2), 16);
+								// set address
+								CommService.elm.setEcuAddress(address);
+								// set this as preference (preference change will trigger ELM command)
+								prefs.edit().putInt(PRESELECT.LAST_ECU_ADDRESS.toString(), address).apply();
+							}
+						})
+						.show();
 			}
 		}
 	}
 
 	/**
 	 * OnClick handler - Browse URL from content description
-	 *
 	 * @param view view source of click event
 	 */
 	public void browseClickedUrl(View view)
@@ -1282,12 +1239,13 @@ public class MainActivity extends PluginManager
 	}
 
 	/**
-	 * Unhide action bar
+	 * OnClick handler - Unhide action bar
+	 * @param view view source of click event
 	 */
-	private void unHideActionBar()
+	public void unHideActionBar(View view)
 	{
-		if (toolbarAutoHider != null)
-		{ toolbarAutoHider.showComponent(); }
+		if(toolbarAutoHider != null)
+			toolbarAutoHider.showComponent();
 	}
 
 	/**
@@ -1304,12 +1262,12 @@ public class MainActivity extends PluginManager
 		}
 	};
 
-	private boolean isNightMode()
+	public boolean isNightMode()
 	{
 		return nightMode;
 	}
 
-	private void setNightMode(boolean nightMode)
+	public void setNightMode(boolean nightMode)
 	{
 		this.nightMode = nightMode;
 		setTheme(nightMode ? R.style.AppTheme_Dark : R.style.AppTheme);
@@ -1321,11 +1279,11 @@ public class MainActivity extends PluginManager
 	{
 		// set list background based on MIL status
 		View list = findViewById(R.id.obd_list);
-		if (list != null)
+		if(list != null)
 		{
 			list.setBackgroundResource((newNumCodes & 0x80) != 0
-			                           ? R.drawable.mil_on
-			                           : R.drawable.mil_off);
+					? R.drawable.mil_on
+					: R.drawable.mil_off);
 		}
 		// enable / disable freeze frames based on number of codes
 		setMenuItemEnable(R.id.service_freezeframes, (newNumCodes != 0));
@@ -1380,10 +1338,10 @@ public class MainActivity extends PluginManager
 	/**
 	 * start/stop the autmatic toolbar hider
 	 */
-	private void setAutoHider(boolean active)
+	void setAutoHider(boolean active)
 	{
 		// disable existing hider
-		if (toolbarAutoHider != null)
+		if(toolbarAutoHider != null)
 		{
 			// cancel auto hider
 			toolbarAutoHider.cancel();
@@ -1392,12 +1350,13 @@ public class MainActivity extends PluginManager
 		}
 
 		// if new hider shall be activated
-		if (active)
+		if(active)
 		{
 			int timeout = getPrefsInt(MainActivity.PREF_AUTOHIDE_DELAY, 15);
 			toolbarAutoHider = new AutoHider( this,
-			                                  mHandler,
-				timeout * 1000);
+					mHandler,
+					MESSAGE_TOOLBAR_VISIBLE,
+					timeout * 1000);
 			// start with update resolution of 1 second
 			toolbarAutoHider.start(1000);
 		}
@@ -1406,11 +1365,11 @@ public class MainActivity extends PluginManager
 	/**
 	 * Get preference int value
 	 *
-	 * @param key          preference key name
+	 * @param key preference key name
 	 * @param defaultValue numeric default value
+	 *
 	 * @return preference int value
 	 */
-	@SuppressLint("DefaultLocale")
 	private int getPrefsInt(String key, int defaultValue)
 	{
 		int result = defaultValue;
@@ -1419,7 +1378,7 @@ public class MainActivity extends PluginManager
 		{
 			result = Integer.valueOf(prefs.getString(key, String.valueOf(defaultValue)));
 		}
-		catch (Exception ex)
+		catch( Exception ex)
 		{
 			// log error message
 			log.severe(String.format("Preference '%s'(%d): %s", key, result, ex.toString()));
@@ -1435,21 +1394,17 @@ public class MainActivity extends PluginManager
 	{
 		// add pv change listeners to trigger model updates
 		ObdProt.PidPvs.addPvChangeListener(this,
-			PvChangeEvent.PV_ADDED
-			| PvChangeEvent.PV_CLEARED
+				PvChangeEvent.PV_ADDED
+						| PvChangeEvent.PV_CLEARED
 		);
 		ObdProt.VidPvs.addPvChangeListener(this,
-			PvChangeEvent.PV_ADDED
-			| PvChangeEvent.PV_CLEARED
+				PvChangeEvent.PV_ADDED
+						| PvChangeEvent.PV_CLEARED
 		);
 		ObdProt.tCodes.addPvChangeListener(this,
-			PvChangeEvent.PV_ADDED
-			| PvChangeEvent.PV_CLEARED
+				PvChangeEvent.PV_ADDED
+						| PvChangeEvent.PV_CLEARED
 		);
-		mPluginPvs.addPvChangeListener(this,
-			PvChangeEvent.PV_ADDED
-			| PvChangeEvent.PV_CLEARED
-	);
 	}
 
 	/**
@@ -1461,13 +1416,14 @@ public class MainActivity extends PluginManager
 		ObdProt.PidPvs.removePvChangeListener(this);
 		ObdProt.VidPvs.removePvChangeListener(this);
 		ObdProt.tCodes.removePvChangeListener(this);
-		mPluginPvs.removePvChangeListener(this);
 	}
+
+	MODE previousMode;
 
 	/**
 	 * get current operating mode
 	 */
-	private MODE getMode()
+	public MODE getMode()
 	{
 		return mode;
 	}
@@ -1477,15 +1433,12 @@ public class MainActivity extends PluginManager
 	 *
 	 * @param mode new mode
 	 */
-	private void setMode(MODE mode)
+	public void setMode(MODE mode)
 	{
 		// if this is a mode change, or file reload ...
 		if (mode != this.mode || mode == MODE.FILE)
 		{
-			if (mode != MODE.DEMO) { stopDemoService(); }
-
-			// Disable data updates in FILE mode
-			ObdItemAdapter.allowDataUpdates = (mode != MODE.FILE);
+			if (mode != MODE.DEMO) stopDemoService();
 
 			switch (mode)
 			{
@@ -1500,30 +1453,22 @@ public class MainActivity extends PluginManager
 					switch (CommService.medium)
 					{
 						case BLUETOOTH:
-							if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled())
+							// if pre-settings shall be used ...
+							String address = prefs.getString(PRESELECT.LAST_DEV_ADDRESS.toString(), null);
+							if(istRestoreWanted(PRESELECT.LAST_DEV_ADDRESS)
+									&& address != null)
 							{
-								Toast.makeText(this, getString(R.string.none_found), Toast.LENGTH_SHORT).show();
-								mode = MODE.OFFLINE;
+								// ... connect with previously connected device
+								connectBtDevice(address, prefs.getBoolean("bt_secure_connection", false));
 							}
 							else
 							{
-								// if pre-settings shall be used ...
-								String address = prefs.getString(PRESELECT.LAST_DEV_ADDRESS.toString(), null);
-								if(istRestoreWanted(PRESELECT.LAST_DEV_ADDRESS)
-								   && address != null)
-								{
-									// ... connect with previously connected device
-									connectBtDevice(address, prefs.getBoolean("bt_secure_connection", false));
-								}
-								else
-								{
-									// ... otherwise launch the BtDeviceListActivity to see devices and do scan
-									Intent serverIntent = new Intent(this, BtDeviceListActivity.class);
-									startActivityForResult(serverIntent,
+								// ... otherwise launch the BtDeviceListActivity to see devices and do scan
+								Intent serverIntent = new Intent(this, BtDeviceListActivity.class);
+								startActivityForResult(serverIntent,
 										prefs.getBoolean("bt_secure_connection", false)
-										? REQUEST_CONNECT_DEVICE_SECURE
-										: REQUEST_CONNECT_DEVICE_INSECURE );
-								}
+												? REQUEST_CONNECT_DEVICE_SECURE
+												: REQUEST_CONNECT_DEVICE_INSECURE );
 							}
 							break;
 
@@ -1534,7 +1479,7 @@ public class MainActivity extends PluginManager
 
 						case NETWORK:
 							connectNetworkDevice(prefs.getString(DEVICE_ADDRESS, null),
-								getPrefsInt(DEVICE_PORT, 23));
+									getPrefsInt(DEVICE_PORT, 23));
 							break;
 					}
 					break;
@@ -1550,6 +1495,7 @@ public class MainActivity extends PluginManager
 
 			}
 			// remember previous mode
+			previousMode = this.mode;
 			// set new mode
 			this.mode = mode;
 			setStatus(mode.toString());
@@ -1561,7 +1507,7 @@ public class MainActivity extends PluginManager
 	 *
 	 * @param cnvId ID for metric/imperial conversion
 	 */
-	private void setConversionSystem(int cnvId)
+	void setConversionSystem(int cnvId)
 	{
 		log.info("Conversion: " + getResources().getStringArray(R.array.measure_options)[cnvId]);
 		if (EcuDataItem.cnvSystem != cnvId)
@@ -1572,74 +1518,27 @@ public class MainActivity extends PluginManager
 	}
 
 	/**
-	 * Set up loggers
-	 */
-	private void setupLoggers()
-	{
-		// set file handler for log file output
-		String logFileName = FileHelper.getPath(this).concat(File.separator).concat("log");
-		try
-		{
-			// ensure log directory is available
-			//noinspection ResultOfMethodCallIgnored
-			new File(logFileName).mkdirs();
-			// Create new log file handler (max. 250 MB, 5 files rotated, non appending)
-			logFileHandler = new FileHandler( logFileName.concat("/AndrOBD.log.%g.txt"),
-				250*1024*1024,
-				5,
-				false);
-			// Set log message formatter
-			logFileHandler.setFormatter(new SimpleFormatter() {
-				final String format = "%1$tF\t%1$tT.%1$tL\t%4$s\t%3$s\t%5$s%n";
-
-				@SuppressLint("DefaultLocale")
-				@Override
-				public synchronized String format(LogRecord lr) {
-					return String.format(format,
-						new Date(lr.getMillis()),
-						lr.getSourceClassName(),
-						lr.getLoggerName(),
-						lr.getLevel().getName(),
-						lr.getMessage()
-					);
-				}
-			});
-			// add file logging ...
-			rootLogger.addHandler(logFileHandler);
-			// set
-			setLogLevels();
-		}
-		catch(IOException e)
-		{
-			// try to log error (at least with system logging)
-			log.log(Level.SEVERE, logFileName, e);
-		}
-	}
-	/**
 	 * Set logging levels from shared preferences
 	 */
 	private void setLogLevels()
 	{
-		// get level from preferences
 		Level level;
-        try
-        {
-            level = Level.parse(prefs.getString(LOG_MASTER, "INFO"));
-        }
-        catch(Exception e)
-        {
-            level = Level.INFO;
-        }
-
-        // set logger main level
-		MainActivity.rootLogger.setLevel(level);
+		try
+		{
+			level = Level.parse(prefs.getString(LOG_MASTER, "INFO"));
+		}
+		catch(Exception e)
+		{
+			level = Level.INFO;
+		}
+		Logger.getLogger("").setLevel(level);
 	}
 
 	/**
 	 * Load optional extension files which may have
 	 * been defined in preferences
 	 */
-	private void loadPreferredExtensions()
+	public void loadPreferredExtensions()
 	{
 		String errors = "";
 
@@ -1654,8 +1553,7 @@ public class MainActivity extends PluginManager
 				InputStream inStr = getContentResolver().openInputStream(uri);
 				EcuDataItems.cnv.loadFromStream(inStr);
 			}
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			log.log(Level.SEVERE, "Load ext. conversions: ", e);
 			e.printStackTrace();
@@ -1673,8 +1571,7 @@ public class MainActivity extends PluginManager
 				InputStream inStr = getContentResolver().openInputStream(uri);
 				ObdProt.dataItems.loadFromStream(inStr);
 			}
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			log.log(Level.SEVERE, "Load ext. PIDs: ", e);
 			e.printStackTrace();
@@ -1684,10 +1581,10 @@ public class MainActivity extends PluginManager
 		if (errors.length() != 0)
 		{
 			dlgBuilder
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.extension_loading)
-				.setMessage(getString(R.string.check_cust_settings) + errors)
-				.show();
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.extension_loading)
+					.setMessage(getString(R.string.check_cust_settings) + errors)
+					.show();
 		}
 	}
 
@@ -1713,7 +1610,8 @@ public class MainActivity extends PluginManager
 			setStatus(getString(R.string.demo));
 			Toast.makeText(this, getString(R.string.demo_started), Toast.LENGTH_SHORT).show();
 
-			boolean allowConnect = mBluetoothAdapter != null && mBluetoothAdapter.isEnabled();
+			boolean allowConnect = mBluetoothAdapter != null
+					&& mBluetoothAdapter.isEnabled();
 			setMenuItemVisible(R.id.secure_connect_scan, allowConnect);
 			setMenuItemVisible(R.id.disconnect, !allowConnect);
 
@@ -1746,14 +1644,14 @@ public class MainActivity extends PluginManager
 		{
 			actionBar.setSubtitle(subTitle);
 			// show action bar to make state change visible
-			unHideActionBar();
+			unHideActionBar(getListView());
 		}
 	}
 
 	/**
 	 * Select file to be loaded
 	 */
-	private void selectFileToLoad()
+	public void selectFileToLoad()
 	{
 		File file = new File(FileHelper.getPath(this));
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -1769,15 +1667,15 @@ public class MainActivity extends PluginManager
 	 */
 	private void clearPreselections()
 	{
-		for (PRESELECT selection : PRESELECT.values())
-		{ prefs.edit().remove(selection.toString()).apply(); }
+		for(PRESELECT selection : PRESELECT.values())
+			prefs.edit().remove(selection.toString()).apply();
 	}
 
 	/**
 	 * Initiate a connect to the selected bluetooth device
 	 *
 	 * @param address bluetooth device address
-	 * @param secure  flag to indicate if the connection shall be secure, or not
+	 * @param secure flag to indicate if the connection shall be secure, or not
 	 */
 	private void connectBtDevice(String address, boolean secure)
 	{
@@ -1792,13 +1690,13 @@ public class MainActivity extends PluginManager
 	 * Initiate a connect to the selected network device
 	 *
 	 * @param address IP device address
-	 * @param port    IP port to connect to
+	 * @param port IP port to connect to
 	 */
 	private void connectNetworkDevice(String address, int port)
 	{
 		// Attempt to connect to the device
 		mCommService = new NetworkCommService(this, mHandler);
-		((NetworkCommService) mCommService).connect(address, port);
+		((NetworkCommService)mCommService).connect(address, port);
 	}
 
 	/**
@@ -1806,7 +1704,7 @@ public class MainActivity extends PluginManager
 	 *
 	 * @param newObdService OBD service ID to be activated
 	 */
-	private void setObdService(int newObdService, CharSequence menuTitle)
+	public void setObdService(int newObdService, CharSequence menuTitle)
 	{
 		// remember this as current OBD service
 		obdService = newObdService;
@@ -1827,8 +1725,7 @@ public class MainActivity extends PluginManager
 			if (menuTitle != null)
 			{
 				ab.setTitle(menuTitle);
-			}
-			else
+			} else
 			{
 				// no title specified, set to app name if no service set
 				if (newObdService == ElmProt.OBD_SVC_NONE)
@@ -1840,11 +1737,11 @@ public class MainActivity extends PluginManager
 		// set protocol service
 		CommService.elm.setService(newObdService, (getMode() != MODE.FILE));
 		// show / hide freeze frame selector */
-		Spinner ff_selector = findViewById(R.id.ff_selector);
+		Spinner ff_selector = (Spinner) findViewById(R.id.ff_selector);
 		ff_selector.setOnItemSelectedListener(ff_selected);
 		ff_selector.setAdapter(mDfcAdapter);
 		ff_selector.setVisibility(
-			newObdService == ObdProt.OBD_SVC_FREEZEFRAME ? View.VISIBLE : View.GONE);
+				newObdService == ObdProt.OBD_SVC_FREEZEFRAME ? View.VISIBLE : View.GONE);
 		// set corresponding list adapter
 		switch (newObdService)
 		{
@@ -1859,7 +1756,6 @@ public class MainActivity extends PluginManager
 			case ObdProt.OBD_SVC_PERMACODES:
 			case ObdProt.OBD_SVC_READ_CODES:
 				currDataAdapter = mDfcAdapter;
-				Toast.makeText(this, getString(R.string.long_press_dfc_hint), Toast.LENGTH_LONG).show();
 				break;
 
 			case ObdProt.OBD_SVC_NONE:
@@ -1870,10 +1766,9 @@ public class MainActivity extends PluginManager
 				break;
 		}
 		setListAdapter(currDataAdapter);
-
 		// remember this as last selected service
-		if (newObdService > ObdProt.OBD_SVC_NONE)
-		{ prefs.edit().putInt(PRESELECT.LAST_SERVICE.toString(), newObdService).apply(); }
+		if(newObdService > ObdProt.OBD_SVC_NONE)
+			prefs.edit().putInt(PRESELECT.LAST_SERVICE.toString(), newObdService).apply();
 	}
 
 	/**
@@ -1883,37 +1778,20 @@ public class MainActivity extends PluginManager
 	{
 		if (filtered)
 		{
-			TreeSet<Integer> selPids = new TreeSet<>();
-			int[] selectedPositions = getSelectedPositions();
-			for (int pos : selectedPositions)
+			PvList filteredList = new PvList();
+			TreeSet<Integer> selPids = new TreeSet<Integer>();
+			for (int pos : getSelectedPositions())
 			{
-				EcuDataPv pv = (EcuDataPv)currDataAdapter.getItem(pos);
-				selPids.add(pv != null ? pv.getAsInt(EcuDataPv.FID_PID) : 0);
+				EcuDataPv pv = (EcuDataPv) mPidAdapter.getItem(pos);
+				selPids.add(pv.getAsInt(EcuDataPv.FID_PID));
+				filteredList.put(pv.toString(), pv);
 			}
-			currDataAdapter.filterPositions(selectedPositions);
-
-			if(currDataAdapter == mPidAdapter)
-				setFixedPids(selPids);
-		}
-		else
+			mPidAdapter.setPvList(filteredList);
+			setFixedPids(selPids);
+		} else
 		{
-			if(currDataAdapter == mPidAdapter)
-				ObdProt.resetFixedPid();
-
-			/* Return to original PV list */
-			if(currDataAdapter == mPidAdapter)
-			{
-				currDataAdapter.setPvList(ObdProt.PidPvs);
-				// append plugin measurements to data list
-				currDataAdapter.addAll(mPluginPvs.values());
-			}
-			else if(currDataAdapter == mVidAdapter)
-				currDataAdapter.setPvList(ObdProt.VidPvs);
-			else if(currDataAdapter == mDfcAdapter)
-				currDataAdapter.setPvList(ObdProt.tCodes);
-			else if(currDataAdapter == mPluginDataAdapter)
-				currDataAdapter.setPvList(mPluginPvs);
-
+			ObdProt.resetFixedPid();
+			mPidAdapter.setPvList(ObdProt.PidPvs);
 		}
 	}
 
@@ -1924,7 +1802,7 @@ public class MainActivity extends PluginManager
 	 */
 	private int[] getSelectedPositions()
 	{
-		int[] selectedPositions;
+		int selectedPositions[];
 		// SparseBoolArray - what a garbage data type to return ...
 		final SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
 		// get number of items
@@ -1944,37 +1822,36 @@ public class MainActivity extends PluginManager
 				}
 			}
 			// trim to really detected value (workaround for invalid length reported)
-			selectedPositions = Arrays.copyOf(selectedPositions, j);
+			selectedPositions = Arrays.copyOf(selectedPositions,j);
 		}
 		// save this as last seleted positions
-		prefs.edit().putString(PRESELECT.LAST_ITEMS.toString(), Arrays.toString(selectedPositions))
-			.apply();
+		prefs.edit().putString(PRESELECT.LAST_ITEMS.toString(), Arrays.toString(selectedPositions)).apply();
 		return selectedPositions;
 	}
 
 	/**
 	 * Set selection status on specified list item positions
-	 *
-	 * @param positions       list of positions to be set
+	 * @param positions list of positions to be set
+	 * @param selectionStatus status to be set
 	 * @return flag if selections could be applied
 	 */
-	private boolean selectDataItems(int[] positions)
+	private boolean selectDataItems(int[] positions, boolean selectionStatus)
 	{
 		int count;
 		int max;
 		boolean positionsValid;
 
 		Arrays.sort(positions);
-		max = positions.length > 0 ? positions[positions.length - 1] : 0;
+		max = positions.length > 0 ? positions[positions.length-1] : 0;
 		count = getListAdapter().getCount();
 		positionsValid = (max < count);
 		// if all positions are valid for current list ...
-		if (positionsValid)
+		if(positionsValid)
 		{
 			// set list items as selected
-			for (int i : positions)
+			for(int i : positions)
 			{
-				getListView().setItemChecked(i, true);
+				getListView().setItemChecked(i, selectionStatus);
 			}
 		}
 
@@ -1991,7 +1868,7 @@ public class MainActivity extends PluginManager
 	{
 		int[] pids = new int[pidNumbers.size()];
 		int i = 0;
-		for (Integer pidNum : pidNumbers) { pids[i++] = pidNum; }
+		for (Integer pidNum : pidNumbers) pids[i++] = pidNum;
 		Arrays.sort(pids);
 		// set protocol fixed PIDs
 		ObdProt.setFixedPid(pids);
@@ -2000,7 +1877,6 @@ public class MainActivity extends PluginManager
 	/**
 	 * Handle bluetooth connection established ...
 	 */
-	@SuppressLint("StringFormatInvalid")
 	private void onConnect()
 	{
 		stopDemoService();
@@ -2040,36 +1916,24 @@ public class MainActivity extends PluginManager
 			Message msg = mHandler.obtainMessage(MESSAGE_OBD_STATE_CHANGED);
 			msg.obj = evt;
 			mHandler.sendMessage(msg);
-		}
-		else
+		} else if (ElmProt.PROP_NUM_CODES.equals(evt.getPropertyName()))
 		{
-			if (ElmProt.PROP_NUM_CODES.equals(evt.getPropertyName()))
-			{
-				// forward property change to the UI Activity
-				Message msg = mHandler.obtainMessage(MESSAGE_OBD_NUMCODES);
-				msg.obj = evt;
-				mHandler.sendMessage(msg);
-			}
-			else
-			{
-				if (ElmProt.PROP_ECU_ADDRESS.equals(evt.getPropertyName()))
-				{
-					// forward property change to the UI Activity
-					Message msg = mHandler.obtainMessage(MESSAGE_OBD_ECUS);
-					msg.obj = evt;
-					mHandler.sendMessage(msg);
-				}
-				else
-				{
-					if (ObdProt.PROP_NRC.equals(evt.getPropertyName()))
-					{
-						// forward property change to the UI Activity
-						Message msg = mHandler.obtainMessage(MESSAGE_OBD_NRC);
-						msg.obj = evt;
-						mHandler.sendMessage(msg);
-					}
-				}
-			}
+			// forward property change to the UI Activity
+			Message msg = mHandler.obtainMessage(MESSAGE_OBD_NUMCODES);
+			msg.obj = evt;
+			mHandler.sendMessage(msg);
+		} else if (ElmProt.PROP_ECU_ADDRESS.equals(evt.getPropertyName()))
+		{
+			// forward property change to the UI Activity
+			Message msg = mHandler.obtainMessage(MESSAGE_OBD_ECUS);
+			msg.obj = evt;
+			mHandler.sendMessage(msg);
+		} else if (ObdProt.PROP_NRC.equals(evt.getPropertyName()))
+		{
+			// forward property change to the UI Activity
+			Message msg = mHandler.obtainMessage(MESSAGE_OBD_NRC);
+			msg.obj = evt;
+			mHandler.sendMessage(msg);
 		}
 	}
 
@@ -2077,41 +1941,40 @@ public class MainActivity extends PluginManager
 	 * clear OBD fault codes after a warning
 	 * confirmation dialog is shown and the operation is confirmed
 	 */
-	private void clearObdFaultCodes()
+	protected void clearObdFaultCodes()
 	{
 		dlgBuilder
-			.setIcon(android.R.drawable.ic_dialog_info)
-			.setTitle(R.string.obd_clearcodes)
-			.setMessage(R.string.obd_clear_info)
-			.setPositiveButton(android.R.string.yes,
-				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						// set service CLEAR_CODES to clear the codes
-						CommService.elm.setService(ObdProt.OBD_SVC_CLEAR_CODES);
-						// set service READ_CODES to re-read the codes
-						CommService.elm.setService(ObdProt.OBD_SVC_READ_CODES);
-					}
-				})
-			.setNegativeButton(android.R.string.no, null)
-			.show();
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.obd_clearcodes)
+				.setMessage(R.string.obd_clear_info)
+				.setPositiveButton(android.R.string.yes,
+						new DialogInterface.OnClickListener()
+						{
+							@Override
+							public void onClick(DialogInterface dialog, int which)
+							{
+								// set service CLEAR_CODES to clear the codes
+								CommService.elm.setService(ObdProt.OBD_SVC_CLEAR_CODES);
+								// set service READ_CODES to re-read the codes
+								CommService.elm.setService(ObdProt.OBD_SVC_READ_CODES);
+							}
+						})
+				.setNegativeButton(android.R.string.no, null)
+				.show();
 	}
 
 	/**
 	 * Set new data view mode
-	 *
 	 * @param dataViewMode new data view mode
 	 */
-	private void setDataViewMode(DATA_VIEW_MODE dataViewMode)
+	private void setDataViewMode(DATA_VIEW_MODE dataViewMode, boolean force)
 	{
 		// if this is a real change ...
-		if (dataViewMode != this.dataViewMode)
+		if(force || dataViewMode != this.dataViewMode)
 		{
 			log.info(String.format("Set view mode: %s -> %s", this.dataViewMode, dataViewMode));
 
-			switch (dataViewMode)
+			switch(dataViewMode)
 			{
 				case LIST:
 					setFiltered(false);
@@ -2136,9 +1999,9 @@ public class MainActivity extends PluginManager
 							Intent intent = new Intent(this, DashBoardActivity.class);
 							intent.putExtra(DashBoardActivity.POSITIONS, getSelectedPositions());
 							intent.putExtra(DashBoardActivity.RES_ID,
-								dataViewMode == DATA_VIEW_MODE.DASHBOARD
-								? R.layout.dashboard
-								: R.layout.head_up);
+									dataViewMode == DATA_VIEW_MODE.DASHBOARD
+											? R.layout.dashboard
+											: R.layout.head_up);
 							startActivityForResult(intent, REQUEST_GRAPH_DISPLAY_DONE);
 						}
 					}
@@ -2156,8 +2019,7 @@ public class MainActivity extends PluginManager
 							Intent intent = new Intent(this, ChartActivity.class);
 							intent.putExtra(ChartActivity.POSITIONS, getSelectedPositions());
 							startActivityForResult(intent, REQUEST_GRAPH_DISPLAY_DONE);
-						}
-						else
+						} else
 						{
 							setMenuItemEnable(R.id.chart_selected, false);
 						}
@@ -2167,89 +2029,8 @@ public class MainActivity extends PluginManager
 			this.dataViewMode = dataViewMode;
 
 			// remember this as the last data view mode (if not regular list)
-			if (dataViewMode != DATA_VIEW_MODE.LIST)
-			{
-				prefs.edit().putString(PRESELECT.LAST_VIEW_MODE.toString(), dataViewMode.toString())
-					.apply();
-			}
-		}
-	}
-
-	/*
-	 * Implementations of PluginManager data interface callbacks
-	 */
-
-	/** Mapping list from Plugin.CsvField to EcuDataPv.key */
-	static final Object[] csvFidMap =
-	{
-		EcuDataPv.FID_MNEMONIC,
-		EcuDataPv.FIELDS[EcuDataPv.FID_DESCRIPT],
-		EcuDataPv.FID_MIN,
-		EcuDataPv.FID_MAX,
-		EcuDataPv.FIELDS[EcuDataPv.FID_UNITS]
-	};
-
-	@Override
-	public void onDataListUpdate(String csvString)
-	{
-		log.log(Level.FINE,"PluginDataList: " + csvString);
-		// append unknown items to list of known items
-		synchronized (mPluginPvs)
-		{
-			for (String csvLine : csvString.split("\n"))
-			{
-				String[] fields = csvLine.split(";");
-				if (fields.length >= Plugin.CsvField.values().length)
-				{
-					// check if PV already is known ...
-					PluginDataPv pv = (PluginDataPv) mPluginPvs.get(fields[Plugin.CsvField.MNEMONIC.ordinal()]);
-					// if not, create a new one
-					if(pv == null)
-					{
-						pv = new PluginDataPv();
-					}
-					// fill field content
-					for (Plugin.CsvField fld : Plugin.CsvField.values())
-					{
-						try
-						{
-							// if content is numeric, set numeric value
-							Double value = Double.valueOf(fields[fld.ordinal()]);
-							pv.put(csvFidMap[fld.ordinal()], value);
-						}
-						catch(Exception ex )
-						{
-							pv.put(csvFidMap[fld.ordinal()], fields[fld.ordinal()]);
-						}
-					}
-					// add/update into pv list
-					mPluginPvs.put(pv.getKeyValue(), pv);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void onDataUpdate(String key, String value)
-	{
-		log.log(Level.FINE,"PluginData: " + key + "=" + value);
-		// Update value of plugin data item
-		synchronized (mPluginPvs)
-		{
-			ProcessVar pv = (ProcessVar) mPluginPvs.get(key);
-			if(pv != null)
-			{
-				try
-				{
-					// if content is numeric, set numeric value
-					Double numVal = Double.valueOf(value);
-					pv.put(EcuDataPv.FIELDS[EcuDataPv.FID_VALUE], numVal);
-				}
-				catch(Exception ex )
-				{
-					pv.put(EcuDataPv.FIELDS[EcuDataPv.FID_VALUE], value);
-				}
-			}
+			if(dataViewMode != DATA_VIEW_MODE.LIST)
+				prefs.edit().putString(PRESELECT.LAST_VIEW_MODE.toString(), dataViewMode.toString()).apply();
 		}
 	}
 }

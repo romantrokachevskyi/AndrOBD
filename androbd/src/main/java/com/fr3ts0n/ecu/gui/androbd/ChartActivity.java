@@ -43,7 +43,6 @@ import org.achartengine.renderer.BasicStroke;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
@@ -69,12 +68,12 @@ public class ChartActivity extends Activity
 	public static final String POSITIONS = "POSITIONS";
 
 	/** Map to uniquely collect PID numbers */
-	private final TreeSet<Integer> pidNumbers = new TreeSet<>();
+	private TreeSet<Integer> pidNumbers = new TreeSet<Integer>();
 
 	/**
 	 * List of colors to be used for series
 	 */
-	private static final int[] colors =
+	public static final int[] colors =
 		{
 			Color.LTGRAY,
 			Color.DKGRAY,
@@ -99,7 +98,7 @@ public class ChartActivity extends Activity
 	/**
 	 * list of colors to be used for series
 	 */
-	private static final BasicStroke[] stroke =
+	public static final BasicStroke stroke[] =
 		{
 			BasicStroke.SOLID,
 			BasicStroke.DASHED,
@@ -158,7 +157,7 @@ public class ChartActivity extends Activity
 	 * @param id id to get color for
 	 * @return color for given ID
 	 */
-	private static BasicStroke getStroke(int id)
+	public static BasicStroke getStroke(int id)
 	{
 		return stroke[(id / colors.length) % stroke.length];
 	}
@@ -185,7 +184,7 @@ public class ChartActivity extends Activity
 
 		// prevent activity from falling asleep
 		PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-		wakeLock = Objects.requireNonNull(powerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+		wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
 			getString(R.string.app_name));
 		wakeLock.acquire();
 
@@ -228,7 +227,8 @@ public class ChartActivity extends Activity
 			// auto hide toolbar
 			toolBarHider = new AutoHider( this,
 			                              mHandler,
-				timeout * 1000);
+			                              MainActivity.MESSAGE_TOOLBAR_VISIBLE,
+			                              timeout * 1000);
 			toolBarHider.start(1000);
 			// wake up on touch
 			chartView.setOnTouchListener(toolBarHider);
@@ -312,12 +312,12 @@ public class ChartActivity extends Activity
 		super.onDestroy();
 	}
 
-	private final Timer refreshTimer = new Timer();
+	Timer refreshTimer = new Timer();
 
 	/**
 	 * Timer Task to cyclically update data screen
 	 */
-	private final TimerTask updateTask = new TimerTask()
+	private TimerTask updateTask = new TimerTask()
 	{
 		@Override
 		public void run()
@@ -386,7 +386,7 @@ public class ChartActivity extends Activity
 			// add initial measurement to series data to ensure
 			// at least one measurement is available
 			if (currSeries.getItemCount() < 1)
-				currSeries.add(startTime, Float.parseFloat(currPv.get(EcuDataPv.FID_VALUE).toString()));
+				currSeries.add(startTime, (Float) currPv.get(EcuDataPv.FID_VALUE));
 
 			// set scale to display series
 			currSeries.setScaleNumber(i);
@@ -396,11 +396,11 @@ public class ChartActivity extends Activity
 			renderer.setYTitle(String.valueOf(currPv.get(EcuDataPv.FID_UNITS)), i);
 			renderer.setYAxisAlign(((i % 2) == 0) ? Align.LEFT : Align.RIGHT, i);
 			renderer.setYLabelsAlign(((i % 2) == 0) ? Align.LEFT : Align.RIGHT, i);
-			renderer.setYLabelsColor(i, getItemColor(pid!=0?pid:position));
+			renderer.setYLabelsColor(i, getItemColor(pid));
 			/* set up new line renderer */
 			XYSeriesRenderer r = new XYSeriesRenderer();
-			r.setColor(getItemColor(pid!=0?pid:position));
-			r.setStroke(getStroke(pid!=0?pid:position));
+			r.setColor(getItemColor(pid));
+			r.setStroke(getStroke(pid));
 			// register line renderer
 			renderer.addSeriesRenderer(i, r);
 			i++;

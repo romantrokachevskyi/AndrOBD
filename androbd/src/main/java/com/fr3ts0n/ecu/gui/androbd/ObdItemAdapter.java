@@ -52,10 +52,10 @@ import java.util.Set;
  *
  * @author erwin
  */
-class ObdItemAdapter extends ArrayAdapter<Object>
+public class ObdItemAdapter extends ArrayAdapter<Object>
         implements PvChangeListener
 {
-    transient PvList pvs;
+    public transient PvList pvs;
     final transient LayoutInflater mInflater;
     transient static final String FID_DATA_SERIES = "SERIES";
     /**

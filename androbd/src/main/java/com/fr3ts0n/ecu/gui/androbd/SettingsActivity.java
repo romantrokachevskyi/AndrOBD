@@ -29,7 +29,6 @@ import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import com.fr3ts0n.ecu.EcuDataItem;
 import com.fr3ts0n.ecu.prot.obd.ElmProt;
@@ -37,23 +36,18 @@ import com.fr3ts0n.ecu.prot.obd.ObdProt;
 
 import java.util.HashSet;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SettingsActivity
 	extends Activity
 {
-	/** The logger object */
-	private static final Logger log = Logger.getLogger(SettingsActivity.class.getName());
-	
 	/**
 	 * app preferences
 	 */
-	private static SharedPreferences prefs;
+	static SharedPreferences prefs;
 	/**
 	 * preference keys for extension files
 	 */
-	static final String[] extKeys =
+	public static final String[] extKeys =
 	{
 		"ext_file_conversions",
 		"ext_file_dataitems"
@@ -62,7 +56,7 @@ public class SettingsActivity
 	/**
 	 * key ids for device network settings
 	 */
-	private static final String[] networkKeys =
+	static final String[] networkKeys =
 	{
 		"device_address",
 		"device_port"
@@ -70,19 +64,18 @@ public class SettingsActivity
 	/**
 	 * key ids for device network settings
 	 */
-	private static final String[] bluetoothKeys =
+	static final String[] bluetoothKeys =
 	{
 		"bt_secure_connection"
 	};
 
 	// Preference key for data items
-	static final String KEY_DATA_ITEMS = "data_items";
-	static final String KEY_PROT_SELECT = "protocol";
-	static final String KEY_COMM_MEDIUM = "comm_medium";
-	static final String ELM_MIN_TIMEOUT = "elm_min_timeout";
-	static final String ELM_CMD_DISABLE = "elm_cmd_disable";
-    static final String ELM_TIMING_SELECT = "adaptive_timing_mode";
-    private static final String KEY_BITCOIN = "bitcoin";
+	public static final String KEY_DATA_ITEMS = "data_items";
+	public static final String KEY_PROT_SELECT = "protocol";
+	public static final String KEY_COMM_MEDIUM = "comm_medium";
+	public static final String ELM_MIN_TIMEOUT = "elm_min_timeout";
+	public static final String ELM_CMD_DISABLE = "elm_cmd_disable";
+	public static final String ELM_TIMING_SELECT = "adaptive_timing_mode";
 
 	/*
 	 * (non-Javadoc)
@@ -132,7 +125,7 @@ public class SettingsActivity
 			setupPidSelection();
 			// update network selection fields
 			updateNetworkSelections();
-			findPreference(KEY_BITCOIN).setOnPreferenceClickListener(this);
+
 			// add handler for selection update
 			prefs.registerOnSharedPreferenceChangeListener(this);
 		}
@@ -174,8 +167,8 @@ public class SettingsActivity
             for (ElmProt.AdaptTimingMode mode : values)
             {
                 titles[i] = mode.toString();
-                keys[i] = mode.toString();
-	            i++;
+                keys[i] = mode.toString();;
+                i++;
             }
             // set enries and keys
             pref.setEntries(titles);
@@ -193,7 +186,7 @@ public class SettingsActivity
 			MultiSelectListPreference pref =
 				(MultiSelectListPreference) findPreference(ELM_CMD_DISABLE);
 			ElmProt.CMD[] values = ElmProt.CMD.values();
-			HashSet<String> selections = new HashSet<>();
+			HashSet<String> selections = new HashSet<String>();
 			CharSequence[] titles = new CharSequence[values.length];
 			CharSequence[] keys = new CharSequence[values.length];
 			int i = 0;
@@ -244,7 +237,7 @@ public class SettingsActivity
 
 			// collect data items for selection
 			items = ObdProt.dataItems.getSvcDataItems(ObdProt.OBD_SVC_DATA);
-			HashSet<String> selections = new HashSet<>();
+			HashSet<String> selections = new HashSet<String>();
 			CharSequence[] titles = new CharSequence[items.size()];
 			CharSequence[] keys = new CharSequence[items.size()];
 			// loop through data items
@@ -289,7 +282,7 @@ public class SettingsActivity
 		 * enable/disable elements for network parameters
 		 * based on selection of communication medium
 		 */
-		void updateNetworkSelections()
+		public void updateNetworkSelections()
 		{
 			boolean networkSelected =
 				String.valueOf(CommService.MEDIUM.NETWORK.ordinal())
@@ -317,25 +310,8 @@ public class SettingsActivity
 		public boolean onPreferenceClick(Preference preference)
 		{
 			Intent intent = preference.getIntent();
-			try
-			{
-				if(KEY_BITCOIN.equals(preference.getKey()))
-				{
-					// special handling for bitcoin VIEW intent
-					startActivity(intent);
-				}
-				else
-				{
-					// OPEN intents require result handling
-					intent.addCategory(Intent.CATEGORY_OPENABLE);
-					startActivityForResult(intent, preference.hashCode());
-				}
-			}
-			catch(Exception e)
-			{
-				log.log(Level.SEVERE, "Settings", e);
-				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
-			}
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
+			startActivityForResult(intent, preference.hashCode());
 			return true;
 		}
 
@@ -347,7 +323,7 @@ public class SettingsActivity
 		{
 			Preference pref;
 			SharedPreferences.Editor ed = prefs.edit();
-			String value = (resultCode == Activity.RESULT_OK) ? String.valueOf(data.getData()) : null;
+			String value = (resultCode == Activity.RESULT_OK) ? data.getData().toString() : null;
 			// find the right key
 			for (String key : extKeys)
 			{
@@ -383,7 +359,6 @@ public class SettingsActivity
 				updateNetworkSelections();
 
 			if(ELM_TIMING_SELECT.equals(key))
-				//noinspection ConstantConditions
 				findPreference(ELM_MIN_TIMEOUT)
 					.setEnabled(ElmProt.AdaptTimingMode.SOFTWARE.toString()
 						          .equals(((ListPreference)pref).getValue())
